@@ -1,17 +1,31 @@
-let regex = / /;
-
-let dictionary = [];
-require('fs').readFileSync('./words_alpha.txt').toString().split('\r\n').forEach(function (line) { dictionary.push(line); })
-
-let filteredDictionary = dictionary.filter(word => {
-    if(word.length == 7){   
-        if(word[0] == 'i' && word[6] == 'a'){
-            return word;
-        }
-        
+///////// CONFIG /////////
+const wordLength = 7;
+const requirements = [
+    {
+        place: 5,
+        letter: 'r'
+    },
+    {
+        place: 7,
+        letter: 'a'
     }
-    
+];
+///////////////////////////
 
-});
+const fs = require('fs');
+const dictionaryFile = fs.readFileSync('./words_alpha.txt');
+const dictionaryAsArray = dictionaryFile.toString().split('\r\n');
 
+const fitsOneRequirement = ({word, place, letter}) => word[place-1] === letter;
+
+const fitsAllRequirements = (word, requirementsArray) => {
+    if (requirementsArray.length === 0) {
+        return true;
+    }
+    if (fitsOneRequirement({word, ...requirementsArray[0]})) {
+        return fitsAllRequirements(word, requirementsArray.slice(1));
+    }
+};
+
+const filteredDictionary = dictionaryAsArray.filter(word => word.length === wordLength && fitsAllRequirements(word, requirements));
 console.log(filteredDictionary);
